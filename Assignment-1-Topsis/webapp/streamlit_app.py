@@ -99,12 +99,12 @@ def topsis(df: pd.DataFrame, weights, impacts):
 def send_email(recipient_email: str, result_df: pd.DataFrame) -> tuple[bool, str]:
     """Send TOPSIS results via email."""
     try:
-        # Get email credentials from Streamlit secrets or environment
-        sender_email = st.secrets.get("EMAIL_USER", "your-email@gmail.com")
-        sender_password = st.secrets.get("EMAIL_PASSWORD", "")
+        # Get email credentials from Streamlit secrets
+        sender_email = st.secrets.get("EMAIL_USER")
+        sender_password = st.secrets.get("EMAIL_PASSWORD")
         
-        if not sender_password:
-            return False, "Email service not configured. Contact administrator."
+        if not sender_email or not sender_password:
+            return False, "❌ Email service not configured. Admin needs to set EMAIL_USER and EMAIL_PASSWORD in Streamlit Secrets."
         
         # Create message
         msg = MIMEMultipart()
@@ -113,8 +113,7 @@ def send_email(recipient_email: str, result_df: pd.DataFrame) -> tuple[bool, str
         msg['Subject'] = "TOPSIS Analysis Results"
         
         # Email body
-        body = f"""
-Hello,
+        body = f"""Hello,
 
 Your TOPSIS analysis has been completed successfully!
 
@@ -125,7 +124,7 @@ The complete results are attached as a CSV file.
 
 Best regards,
 TOPSIS Studio
-        """
+"""
         
         msg.attach(MIMEText(body, 'plain'))
         
@@ -135,16 +134,20 @@ TOPSIS Studio
         attachment.add_header('Content-Disposition', 'attachment', filename='topsis_results.csv')
         msg.attach(attachment)
         
-        # Send email via Gmail SMTP
+        # Send email via Gmail SMTP with explicit error handling
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
+            server.starttls()  # Enable TLS encryption
+            server.login(sender_email, sender_password)  # Login with app password
             server.send_message(msg)
         
-        return True, "Email sent successfully!"
+        return True, f"✅ Email sent successfully to {recipient_email}!"
     
+    except smtplib.SMTPAuthenticationError:
+        return False, "❌ Authentication failed. Check EMAIL_USER and EMAIL_PASSWORD in Streamlit Secrets. Use Gmail App Password, not your regular password."
+    except smtplib.SMTPException as e:
+        return False, f"❌ SMTP error: {str(e)}"
     except Exception as e:
-        return False, f"Failed to send email: {str(e)}"
+        return False, f"❌ Error sending email: {str(e)}"
 
 
 # Page header
