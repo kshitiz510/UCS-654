@@ -2,6 +2,12 @@
 
 **TOPSIS** stands for **Technique for Order of Preference by Similarity to Ideal Solution**. It is a multi-criteria decision-making (MCDM) method used to rank alternatives based on their performance across multiple criteria.
 
+## TOPSIS Web App (Live)
+
+**🔗 Try it online:** https://topsis-analysis.streamlit.app/
+
+The Streamlit webapp is deployed and publicly accessible. Upload a CSV, set weights and impacts, and see TOPSIS rankings instantly.
+
 ## Course Information
 
 **Course:** UCS654 - Predictive Analytics using Statistics  

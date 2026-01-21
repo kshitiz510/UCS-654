@@ -62,25 +62,30 @@ M2,200,16,8,3
 M3,300,32,16,4
 ```
 
-## Deploy to Streamlit Community Cloud
+## Live Deployment
 
-1. **Push to GitHub**:
+**🔗 App is now live:** https://topsis-analysis.streamlit.app/
+
+The app is deployed on Streamlit Community Cloud and ready to use. Just upload a CSV and analyze!
+
+## Deploy Your Own
+
+1. **Push to GitHub** (already done for the main deployment):
 
    ```bash
    git add .
-   git commit -m "Add Streamlit TOPSIS webapp"
+   git commit -m "TOPSIS Streamlit webapp"
    git push origin main
    ```
 
-2. **Deploy**:
+2. **Deploy on Streamlit Cloud**:
    - Go to https://share.streamlit.io/
    - Click "New app"
-   - Connect your GitHub account
-   - Select your repository
+   - Connect your GitHub account and select this repository
    - Set **Main file path**: `Assignment-1-Topsis/webapp/streamlit_app.py`
    - Click "Deploy"
 
-3. **Done!** Your app will be live at `https://share.streamlit.io/[username]/[repo]/main`
+3. You'll get a live public URL in ~2 minutes
 
 ## Notes
 
