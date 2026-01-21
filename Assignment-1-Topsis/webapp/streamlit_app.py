@@ -14,6 +14,10 @@ st.set_page_config(page_title="TOPSIS Studio", page_icon="📊", layout="wide")
 
 BASE_DIR = Path(__file__).resolve().parent
 
+# Initialize session state
+if "result_df" not in st.session_state:
+    st.session_state.result_df = None
+
 
 def encode_categorical_column(df: pd.DataFrame, col: str) -> pd.Series:
     """Map common ordinal words; otherwise factorize categories."""
@@ -233,6 +237,9 @@ elif prepared is not None and compute:
         result_df["Topsis Score"] = np.round(scores, 3)
         result_df["Rank"] = ranks
         
+        # Store in session state so it persists across reruns
+        st.session_state.result_df = result_df
+        
         st.success("✅ TOPSIS computation complete!")
         
         col1, col2 = st.columns([3, 1])
@@ -257,23 +264,24 @@ elif prepared is not None and compute:
             value=top_alt.iloc[0],
             delta=f"Score: {top_alt['Topsis Score']}"
         )
+
+# Show email section if results exist in session state
+if st.session_state.result_df is not None:
+    with st.expander("📧 Email Results"):
+        st.markdown("Send the analysis results directly to your email")
+        user_email = st.text_input("Enter your email address", placeholder="example@email.com", key="email_input")
         
-        # Email results section
-        with st.expander("📧 Email Results"):
-            st.markdown("Send the analysis results directly to your email")
-            user_email = st.text_input("Enter your email address", placeholder="example@email.com")
-            
-            if st.button("Send Email", type="secondary"):
-                if user_email and "@" in user_email and "." in user_email:
-                    with st.spinner("Sending email..."):
-                        success, message = send_email(user_email, result_df)
-                    
-                    if success:
-                        st.success(f"✅ {message}")
-                    else:
-                        st.error(f"❌ {message}")
+        if st.button("Send Email", type="secondary", key="send_btn"):
+            if user_email and "@" in user_email and "." in user_email:
+                with st.spinner("Sending email..."):
+                    success, message = send_email(user_email, st.session_state.result_df)
+                
+                if success:
+                    st.success(f"✅ {message}")
                 else:
-                    st.warning("⚠️ Please enter a valid email address")
+                    st.error(f"❌ {message}")
+            else:
+                st.warning("⚠️ Please enter a valid email address")
 
 elif prepared is not None:
     st.info("👈 Configure weights and impacts, then click 'Compute TOPSIS'")
