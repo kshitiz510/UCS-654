@@ -35,6 +35,7 @@ A lightweight Streamlit app for running TOPSIS (Technique for Order of Preferenc
 - ⚖️ Set custom weights and impacts for each criterion
 - 📊 View TOPSIS rankings and scores in real-time
 - 📥 Download results as CSV
+- 📧 Email results directly to your inbox
 - 🎯 Automatic categorical-to-numeric conversion
 
 ## How It Works

@@ -1,5 +1,9 @@
 import base64
 import io
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 from pathlib import Path
 
 import numpy as np
@@ -90,6 +94,57 @@ def topsis(df: pd.DataFrame, weights, impacts):
     scores = dist_worst / (dist_best + dist_worst)
     ranks = scores.argsort()[::-1].argsort() + 1
     return scores, ranks
+
+
+def send_email(recipient_email: str, result_df: pd.DataFrame) -> tuple[bool, str]:
+    """Send TOPSIS results via email."""
+    try:
+        # Get email credentials from Streamlit secrets or environment
+        sender_email = st.secrets.get("EMAIL_USER", "your-email@gmail.com")
+        sender_password = st.secrets.get("EMAIL_PASSWORD", "")
+        
+        if not sender_password:
+            return False, "Email service not configured. Contact administrator."
+        
+        # Create message
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+        msg['Subject'] = "TOPSIS Analysis Results"
+        
+        # Email body
+        body = f"""
+Hello,
+
+Your TOPSIS analysis has been completed successfully!
+
+Total Alternatives Analyzed: {len(result_df)}
+Top Ranked Alternative: {result_df.iloc[result_df['Rank'].idxmin()].iloc[0]}
+
+The complete results are attached as a CSV file.
+
+Best regards,
+TOPSIS Studio
+        """
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        # Attach CSV
+        csv_data = result_df.to_csv(index=False).encode('utf-8')
+        attachment = MIMEApplication(csv_data, _subtype='csv')
+        attachment.add_header('Content-Disposition', 'attachment', filename='topsis_results.csv')
+        msg.attach(attachment)
+        
+        # Send email via Gmail SMTP
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+        
+        return True, "Email sent successfully!"
+    
+    except Exception as e:
+        return False, f"Failed to send email: {str(e)}"
 
 
 # Page header
@@ -199,6 +254,23 @@ elif prepared is not None and compute:
             value=top_alt.iloc[0],
             delta=f"Score: {top_alt['Topsis Score']}"
         )
+        
+        # Email results section
+        with st.expander("📧 Email Results"):
+            st.markdown("Send the analysis results directly to your email")
+            user_email = st.text_input("Enter your email address", placeholder="example@email.com")
+            
+            if st.button("Send Email", type="secondary"):
+                if user_email and "@" in user_email and "." in user_email:
+                    with st.spinner("Sending email..."):
+                        success, message = send_email(user_email, result_df)
+                    
+                    if success:
+                        st.success(f"✅ {message}")
+                    else:
+                        st.error(f"❌ {message}")
+                else:
+                    st.warning("⚠️ Please enter a valid email address")
 
 elif prepared is not None:
     st.info("👈 Configure weights and impacts, then click 'Compute TOPSIS'")
