@@ -1,14 +1,3 @@
----
-title: TOPSIS Studio
-emoji: 📊
-colorFrom: blue
-colorTo: purple
-sdk: streamlit
-sdk_version: "1.30"
-app_file: streamlit_app.py
-pinned: false
----
-
 # TOPSIS Studio
 
 A lightweight Streamlit app for running TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution) on CSV datasets.
