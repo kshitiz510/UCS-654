@@ -101,7 +101,7 @@ def topsis(df: pd.DataFrame, weights, impacts):
 
 
 def send_email(recipient_email: str, result_df: pd.DataFrame) -> tuple[bool, str]:
-    """Send TOPSIS results via email."""
+    """Send TOPSIS results via email with HTML formatting."""
     try:
         # Get email credentials from Streamlit secrets
         sender_email = st.secrets.get("EMAIL_USER")
@@ -111,26 +111,106 @@ def send_email(recipient_email: str, result_df: pd.DataFrame) -> tuple[bool, str
             return False, "❌ Email service not configured. Admin needs to set EMAIL_USER and EMAIL_PASSWORD in Streamlit Secrets."
         
         # Create message
-        msg = MIMEMultipart()
+        msg = MIMEMultipart('alternative')
         msg['From'] = sender_email
         msg['To'] = recipient_email
-        msg['Subject'] = "TOPSIS Analysis Results"
+        msg['Subject'] = "📊 Your TOPSIS Analysis Results"
         
-        # Email body
-        body = f"""Hello,
-
-Your TOPSIS analysis has been completed successfully!
-
-Total Alternatives Analyzed: {len(result_df)}
-Top Ranked Alternative: {result_df.iloc[result_df['Rank'].idxmin()].iloc[0]}
-
-The complete results are attached as a CSV file.
-
-Best regards,
-TOPSIS Studio
-"""
+        # Get top alternative
+        top_alt = result_df.iloc[result_df["Rank"].idxmin()]
+        top_name = top_alt.iloc[0]
+        top_score = top_alt['Topsis Score']
         
-        msg.attach(MIMEText(body, 'plain'))
+        # HTML email body with styling
+        html_body = f"""
+        <html>
+            <head>
+                <style>
+                    body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }}
+                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; background: #f9f9f9; border-radius: 8px; }}
+                    .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }}
+                    .header h1 {{ margin: 0; font-size: 28px; }}
+                    .header p {{ margin: 5px 0 0 0; opacity: 0.9; }}
+                    .content {{ background: white; padding: 30px; }}
+                    .stats {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }}
+                    .stat-box {{ background: #f0f4ff; padding: 15px; border-radius: 6px; border-left: 4px solid #667eea; }}
+                    .stat-label {{ font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 5px; }}
+                    .stat-value {{ font-size: 20px; font-weight: bold; color: #667eea; }}
+                    .top-alternative {{ background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); padding: 20px; border-radius: 6px; margin: 20px 0; color: white; text-align: center; }}
+                    .top-alternative h3 {{ margin: 0 0 10px 0; font-size: 14px; opacity: 0.9; }}
+                    .top-alternative .name {{ font-size: 28px; font-weight: bold; margin: 10px 0; }}
+                    .top-alternative .score {{ font-size: 16px; opacity: 0.95; }}
+                    .table-section {{ margin-top: 25px; }}
+                    .table-section h3 {{ color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 10px; }}
+                    table {{ width: 100%; border-collapse: collapse; margin-top: 15px; }}
+                    th {{ background: #667eea; color: white; padding: 12px; text-align: left; font-weight: 600; }}
+                    td {{ padding: 10px 12px; border-bottom: 1px solid #eee; }}
+                    tr:hover {{ background: #f5f5f5; }}
+                    .rank-1 {{ background: #ffd700; font-weight: bold; }}
+                    .footer {{ background: #f0f4ff; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 8px 8px; }}
+                    .footer a {{ color: #667eea; text-decoration: none; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>📊 TOPSIS Analysis Complete</h1>
+                        <p>Your multi-criteria decision analysis results are ready</p>
+                    </div>
+                    
+                    <div class="content">
+                        <p>Hello,</p>
+                        <p>Your TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution) analysis has been completed successfully!</p>
+                        
+                        <div class="stats">
+                            <div class="stat-box">
+                                <div class="stat-label">Total Alternatives</div>
+                                <div class="stat-value">{len(result_df)}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Criteria Analyzed</div>
+                                <div class="stat-value">{len(result_df.columns) - 3}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="top-alternative">
+                            <h3>🏆 Top Ranked Alternative</h3>
+                            <div class="name">{top_name}</div>
+                            <div class="score">TOPSIS Score: {top_score:.3f}</div>
+                        </div>
+                        
+                        <div class="table-section">
+                            <h3>Top 5 Rankings</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Alternative</th>
+                                        <th>TOPSIS Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {"".join([f'<tr><td class="rank-{int(row["Rank"])}" style="{"font-weight: bold; background: #fffacd;" if int(row["Rank"]) == 1 else ""}">{int(row["Rank"])}</td><td>{row.iloc[0]}</td><td>{row["Topsis Score"]:.3f}</td></tr>' for _, row in result_df.nsmallest(5, 'Rank').iterrows()])}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <p style="margin-top: 25px; color: #666;">
+                            The complete results with all alternatives and scores are attached as a CSV file for your records.
+                        </p>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Generated by <strong>TOPSIS Studio</strong></p>
+                        <p>For questions or support, contact your administrator.</p>
+                        <p style="margin-top: 10px; font-size: 11px;">© 2026 TOPSIS Studio | All rights reserved</p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        
+        msg.attach(MIMEText(html_body, 'html'))
         
         # Attach CSV
         csv_data = result_df.to_csv(index=False).encode('utf-8')
