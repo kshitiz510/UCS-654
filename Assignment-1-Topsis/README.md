@@ -178,8 +178,8 @@ Rank alternatives in descending order of TOPSIS scores.
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/TOPSIS-Analysis.git
-cd TOPSIS-Analysis
+git clone https://github.com/kshitiz510/UCS-654
+cd UCS-654
 
 # Create virtual environment
 python -m venv venv
