@@ -1,44 +1,94 @@
-# TOPSIS Webapp
+---
+title: TOPSIS Studio
+emoji: 📊
+colorFrom: blue
+colorTo: purple
+sdk: streamlit
+sdk_version: "1.30"
+app_file: streamlit_app.py
+pinned: false
+---
 
-A lightweight Flask UI for running TOPSIS on CSV datasets.
+# TOPSIS Studio
 
-## Quick start
+A lightweight Streamlit app for running TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution) on CSV datasets.
 
-1. Create a virtual environment.
-2. Install dependencies:
+## Quick Start (Local)
+
+1. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
-3. Run the server from this folder:
+
+2. Run the app:
+
    ```bash
-   python app.py
+   streamlit run streamlit_app.py
    ```
-4. Open http://localhost:5000 and upload your CSV (first column identifier, rest criteria). Use the sample toggle if you want to try `test_data.csv` from the project root.
+
+3. Open http://localhost:8501 in your browser
+
+## Features
+
+- 📤 Upload CSV files with criteria data
+- ⚖️ Set custom weights and impacts for each criterion
+- 📊 View TOPSIS rankings and scores in real-time
+- 📥 Download results as CSV
+- 🎯 Automatic categorical-to-numeric conversion
+
+## How It Works
+
+1. **Normalization** – Scale criteria to comparable range
+2. **Weighted Normalization** – Apply importance weights
+3. **Ideal & Anti-Ideal Solutions** – Determine best/worst values
+4. **Separation Measures** – Calculate Euclidean distances
+5. **TOPSIS Score** – Compute relative closeness (0–1)
+6. **Ranking** – Sort alternatives by score
+
+## Input Format
+
+- **First column**: Alternative names/IDs
+- **Remaining columns**: Numeric criteria (or categorical - will be auto-converted)
+- **Weights**: Comma-separated numbers (one per criterion)
+- **Impacts**: '+' for benefit criteria, '-' for cost criteria
+
+Example:
+
+```csv
+Model,Price,Storage,Camera,Looks
+M1,250,16,12,5
+M2,200,16,8,3
+M3,300,32,16,4
+```
+
+## Deploy to Streamlit Community Cloud
+
+1. **Push to GitHub**:
+
+   ```bash
+   git add .
+   git commit -m "Add Streamlit TOPSIS webapp"
+   git push origin main
+   ```
+
+2. **Deploy**:
+   - Go to https://share.streamlit.io/
+   - Click "New app"
+   - Connect your GitHub account
+   - Select your repository
+   - Set **Main file path**: `Assignment-1-Topsis/webapp/streamlit_app.py`
+   - Click "Deploy"
+
+3. **Done!** Your app will be live at `https://share.streamlit.io/[username]/[repo]/main`
 
 ## Notes
 
-- Enter one weight and impact per criterion column (excluding the identifier column).
-- Impacts: `+` means higher is better, `-` means lower is better.
-- The results table can be downloaded as CSV.
+- Higher TOPSIS score (closer to 1) = better alternative
+- The app handles non-numeric columns by converting ordinal values (low/medium/high) or using label encoding
+- Sample data can be loaded using the checkbox if `test_data.csv` exists in the parent directory
 
-## Deploy (free) – Hugging Face Spaces (Docker)
+## Course Information
 
-This app is ready to deploy on Hugging Face Spaces using a Docker Space.
-
-### Option A: Create a new repo with only the webapp
-
-1. Create a new GitHub repo and copy the contents of this `webapp/` folder into the repo root (so `Dockerfile`, `app.py`, `requirements.txt` are at the top level).
-2. Push to GitHub.
-3. On https://huggingface.co/spaces, click “Create new Space” → “Docker” → connect your repo → Create Space.
-4. The build will start; once it’s running, your Space will be publicly accessible.
-
-### Option B: Upload files directly
-
-1. Create a new Space (type: Docker).
-2. Drag-and-drop the files from this `webapp/` folder (including `Dockerfile`, `app.py`, `requirements.txt`, `templates/`, `static/`).
-3. Commit changes in the Space – it will build and launch automatically.
-
-Notes:
-
-- The app binds to `0.0.0.0` and reads the port from `$PORT` (set by Spaces).
-- No extra config needed; the included `Dockerfile` installs deps and runs `python app.py`.
+**Course**: UCS654 - Predictive Analytics using Statistics  
+**Author**: Kshitiz (Roll No: 102303748)
