@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environments
+.venv/
+.env
+
+# Notebooks / data caches
+*.ipynb_checkpoints
+*.csv
+
+# VCS
+.git
+.gitignore
