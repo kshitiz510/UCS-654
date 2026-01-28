@@ -1,0 +1,7 @@
+numpy>=1.23
+pandas>=1.5
+scipy>=1.10
+torch>=2.0
+sentence-transformers>=2.2
+datasets>=2.14
+tqdm>=4.65

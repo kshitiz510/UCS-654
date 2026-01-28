@@ -1,5 +1,16 @@
 # UCS654 Lecture Repository
 
+## About Me
+
+|  |  |
+|-------|---------|
+| **Name** | Kshitiz Jain |
+| **Roll No** | 102303748 |
+| **Subgroup** | C53 |
+
+
+## Desription
+
 This repo holds my UCS654 assignments. Each assignment lives in its own folder named by the assignment number and topic.
 
 ## Folder layout
