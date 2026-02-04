@@ -1,7 +1,3 @@
-# ==========================================
-# Sampling Assignment – Final Polished Code
-# ==========================================
-
 import os
 import numpy as np
 import pandas as pd
@@ -22,15 +18,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
-# ------------------------------
-# Setup
-# ------------------------------
+
 os.makedirs("results", exist_ok=True)
 sns.set(style="whitegrid")
 
-# ------------------------------
 # 1. Load Dataset
-# ------------------------------
 df = pd.read_csv("Creditcard_data.csv")
 
 X = df.drop("Class", axis=1)
@@ -39,18 +31,14 @@ y = df["Class"]
 print("Original Class Distribution:")
 print(y.value_counts())
 
-# ------------------------------
 # 2. Balance Dataset (SMOTE)
-# ------------------------------
 smote = SMOTE(random_state=42)
 X_bal, y_bal = smote.fit_resample(X, y)
 
 print("\nBalanced Class Distribution:")
 print(pd.Series(y_bal).value_counts())
 
-# ------------------------------
 # 3. Create Five Samples
-# ------------------------------
 samples = []
 for seed in range(5):
     X_train, X_test, y_train, y_test = train_test_split(
@@ -58,9 +46,7 @@ for seed in range(5):
     )
     samples.append((X_train, X_test, y_train, y_test))
 
-# ------------------------------
 # 4. Sampling Techniques
-# ------------------------------
 samplers = {
     "Sampling1": RandomUnderSampler(random_state=42),
     "Sampling2": RandomOverSampler(random_state=42),
@@ -69,9 +55,7 @@ samplers = {
     "Sampling5": SMOTEENN(random_state=42)
 }
 
-# ------------------------------
 # 5. Models
-# ------------------------------
 models = {
     "M1": LogisticRegression(max_iter=3000),
     "M2": DecisionTreeClassifier(),
@@ -80,9 +64,7 @@ models = {
     "M5": SVC()
 }
 
-# ------------------------------
 # 6. Training & Evaluation
-# ------------------------------
 results = {}
 
 for samp_name, sampler in samplers.items():
@@ -109,9 +91,7 @@ results_df = pd.DataFrame(results).T
 print("\nAccuracy Table:")
 print(results_df)
 
-# ------------------------------
-# 7. Accuracy Heatmap (Improved)
-# ------------------------------
+# 7. Accuracy Heatmap
 plt.figure(figsize=(10, 6))
 sns.heatmap(
     results_df,
@@ -127,9 +107,7 @@ plt.tight_layout()
 plt.savefig("results/accuracy_table.png", dpi=300)
 plt.close()
 
-# ------------------------------
-# 8. Best Sampling Technique per Model (Corrected)
-# ------------------------------
+# 8. Best Sampling Technique per Model
 best_sampling = results_df.idxmax()
 
 sampling_to_num = {
